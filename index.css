@@ -1,0 +1,100 @@
+.top-btn {
+    padding: 15px;
+}
+.container {
+    width: 1000px;
+    height: 700px;
+    position: relative;
+}
+.top-panel {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    z-index: 500;
+    top: 40px;
+    left: 40px;
+    right: 40px;
+}
+.bottom-panel {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    z-index: 500;
+    left: 40px;
+    right: 40px;
+    bottom: -10px;
+}
+
+.line {
+    position: absolute;
+    /* left: 40px;
+    right: 40px; */
+    left: 40px;
+    width: 920px;
+    height: 15px;
+    bottom: 80px;
+    background-color: black;
+    z-index: 100;
+    transition: all 1s;
+}
+
+.triangle {
+    transition: all .1s;
+}
+
+
+.rotate-m20 {
+    transform: rotateZ(-20deg);
+    transition: all 1s;
+}
+.rotate-p20 {
+    transform: rotateZ(20deg);
+    transition: all 1s;
+}
+
+.triangle {
+    position: absolute;
+    bottom: 0px;
+    left: auto;
+    right: auto;
+    width: 92px;
+    height: 77px;
+    transform: translateX(-50%);
+    left: 50%;
+}
+.red-block, .blue-block {
+    width: 100px;
+    height: 100px;
+    position: absolute;
+}
+.block-rotate-m20 {
+    transform: translateY(180px) rotateZ(-20deg) ;
+    transition: all 1s;
+}
+.block-rotate-p20 {
+    transform: translateY(180px) rotateZ(20deg) ;
+    transition: all 1s;
+}
+.transition {
+    transition: all 1s;
+}
+.red-block {
+    background-color: red;
+    transition: all .1s;
+}
+.blue-block {
+    background-color: blue;
+    transition: all .1s;
+}
+.canvas {
+    position: relative;
+    width: 1000px;
+    height: 700px;
+}
+.line-container {
+    width: 1000px;
+    height: 700px;
+    position: absolute;
+    bottom: -80px;
+    left: -40px;
+}

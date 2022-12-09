@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css" >
+    <title>Simple Animation</title>
+</head>
+<body>
+    <div class="container">
+        <div class="top-panel">
+            <button class="top-btn" onclick="onClickRed()">Add Red</button>
+            <button class="top-btn" onclick="onClickBlue()">Add Blue</button>
+        </div>
+        <div class="bottom-panel">
+            <button class="top-btn" onclick="onPivotLeft()">Move Pivot Left 10%</button>
+            <button class="top-btn" onclick="onPivotRight()">Move Pivot Right 10%</button>
+        </div>
+        <div id="container" class="canvas">
+        </div>
+        <div class="line transition" id="line">
+            <div class="line-container" id="line-container">
+            </div>
+        </div>
+        <img class="triangle" id="triangle" src="./triangle.png" />
+    </div>
+</body>
+<script>
+    var Container = document.getElementById('container')
+    var Line = document.getElementById('line')
+    var LineContainer = document.getElementById('line-container')
+    var Triangle = document.getElementById('triangle')
+    var LineWidth = 920
+    var redSX = -30;
+    var blueSX = -30;
+    var moveDisY = 20;
+    var MaxH = 500;
+    var countRed = 0;
+    var countBlue = 0;
+    var realCntRed = 0;
+    var realCntBlue = 0;
+    var curAngle = 0;
+    var tempRedY = 0
+    var tempBlueY = 0
+    var tempH = 0
+    var pivotStep = 0;
+
+    function onClickRed() { 
+        if(countRed == 9) return;
+        nextRedSX()
+        Container.innerHTML += `<div class="red-block block" style="left:${redSX}px; top: 100px;"></div>`
+        let block = Container.lastChild
+        block.setAttribute('alreadyY', parseInt(countRed/3) * 110)
+        let xxx = block.getAttribute('alreadyY')
+        block.setAttribute('tempH', tempRedY)
+        block.setAttribute('color', 'red')
+        countRed ++;
+    }
+
+    function onClickBlue() {
+        if(countBlue == 9) return;
+        nextBlueSX()
+        Container.innerHTML += `<div class="blue-block block" style="right:${blueSX}px; top: 100px;"></div>`
+        let block = Container.lastChild
+        block.setAttribute('alreadyY', parseInt(countBlue/3) * 110)
+        block.setAttribute('tempH', -tempBlueY)
+        block.setAttribute('color','blue')
+        countBlue ++;
+    }
+
+    function onPivotLeft() {
+        if(pivotStep == -5) return;
+        pivotStep --;
+        Triangle.style.transform = `translateX(calc(-50% + ${pivotStep*10}px))`
+        Line.style.transformOrigin = `calc(460px + ${pivotStep*10}px) 0`;
+        checkBalance()
+    }
+
+    function onPivotRight() {
+        if(pivotStep == 5) return;
+        pivotStep ++;
+        Triangle.style.transform = `translateX(calc(-50% + ${pivotStep*10}px))`
+        Line.style.transformOrigin = `calc(460px + ${pivotStep*10}px) 0`;
+        checkBalance()
+    }
+
+    function nextRedSX() {
+        if(redSX <= 270) redSX += 120;
+        else redSX = 90;
+    }
+    
+    function nextBlueSX() {
+        if(blueSX <= 270) blueSX += 120;
+        else blueSX = 90;
+    }
+
+    function moveToY(x) {
+        if(x.className.indexOf('red-real-block')>-1 || x.className.indexOf('blue-real-block')>-1) return;
+        let curY = Number(x.style.top.slice(0,-2))
+        let desY = 0;
+        let addH = 0;
+        if(x.getAttribute('color') == 'red') addH = tempRedY
+        else addH = tempBlueY
+        if(curY + moveDisY >= MaxH-x.getAttribute('alreadyY')-Math.abs(addH)) {
+            if (curY != desY) {
+                desY = MaxH-x.getAttribute('alreadyY')
+                if(x.className.indexOf('red-block')>-1) {
+                    realCntRed ++;
+                    addClassName(x,'red-real-block')
+                    LineContainer.appendChild(x)
+                    checkBalance()
+                } else {
+                    realCntBlue ++;
+                    addClassName(x,'blue-real-block')
+                    LineContainer.appendChild(x)
+                    checkBalance()
+                }
+            }
+        } else desY = curY + moveDisY
+        x.style.top = desY +'px'
+    }
+
+    function addClassName(block, classname) {
+        if(block.className.indexOf(classname)<0) {
+            block.className += ` ${classname}`
+        }
+    }
+
+    function checkBalance() {
+        let avg = 0;
+        let leftWeight = 0;
+        let rightWeight = 0;
+        if(realCntBlue > 0 && realCntRed > 0) {
+            leftWeight = realCntRed + pivotStep*realCntRed/10
+            rightWeight = realCntBlue
+        } else {
+            leftWeight = realCntRed
+            rightWeight = realCntBlue
+        }
+        if(rightWeight > 0 && leftWeight > 0) {
+            if(rightWeight < leftWeight) {
+                avg = (rightWeight / leftWeight)
+            } else {
+                avg = (leftWeight / rightWeight)
+            }
+        } else {
+            avg = 0;
+        }
+        
+        if(leftWeight > rightWeight) {
+            curAngle = -20*(1 - avg)
+            tempH = (LineWidth/2)*Math.sin(curAngle*Math.PI/180)
+            tempBlueY = -tempH
+            tempRedY = 0
+        } else if(leftWeight < rightWeight) {
+            curAngle = 20*(1 - avg)
+            tempH = (LineWidth/2)*Math.sin(curAngle*Math.PI/180)
+            tempRedY = tempH
+            tempBlueY = 0
+        } else {
+            curAngle = 0
+            tempH = 0
+            tempRedY = 0
+            tempBlueY = 0
+        }
+        Line.style.transform = `rotateZ(${curAngle}deg)`
+    }
+
+    function handleGame() {
+        let blocks = document.getElementsByClassName('block')
+        for(let i = 0; i < blocks.length; i ++) {
+            moveToY(blocks[i])
+        }
+        
+    }
+
+    setInterval(handleGame, 100)
+
+</script>
+</html>
